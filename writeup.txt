@@ -6,3 +6,6 @@ sudo pip install -U jsonpickle
 sudo pip install passlib
 sudo pip install argon2_cffi#
 ./as5-makeinferno.py -u molloyp1 -p 2_letter.passwords --skip=0 --minppl=180 --maxppl=220 -l 5
+# Also change the secret sharing source python code like described in the assginment.
+# We should try and crack the generated infernoball as practice. All of the passwords are two letter lower
+# case alphabet characters so it should be very quick.
