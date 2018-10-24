@@ -14,3 +14,5 @@ sudo pip install argon2_cffi#
  python extract_hashes.py -i molloyp1.as5 -H outputhashesfile
  python extract_hashes.py -i molloyp1.as5
 
+./begin_level.sh 1 molloyp1.as5 molloyp1.secrets
+
