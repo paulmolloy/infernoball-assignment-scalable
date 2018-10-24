@@ -1,0 +1,8 @@
+pwgen -0 -A 2 -N 1000  | tr ' ' '\n' > 2_letter.passwords
+mkvirtualenv scaleable-5-inferno
+lsvirtualenv
+sudo -H pip install secretsharing
+sudo pip install -U jsonpickle
+sudo pip install passlib
+sudo pip install argon2_cffi#
+./as5-makeinferno.py -u molloyp1 -p 2_letter.passwords --skip=0 --minppl=180 --maxppl=220 -l 5
