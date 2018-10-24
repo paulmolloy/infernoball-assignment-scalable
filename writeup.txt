@@ -9,3 +9,8 @@ sudo pip install argon2_cffi#
 # Also change the secret sharing source python code like described in the assginment.
 # We should try and crack the generated infernoball as practice. All of the passwords are two letter lower
 # case alphabet characters so it should be very quick.
+
+
+ python extract_hashes.py -i molloyp1.as5 -H outputhashesfile
+ python extract_hashes.py -i molloyp1.as5
+
