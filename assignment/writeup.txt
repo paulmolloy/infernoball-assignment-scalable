@@ -1,0 +1,5 @@
+
+../JohnTheRipper/run/john assignment/1_level/hashes/sha1.hashes --wordlist=../rockyou.txt
+../hashcat-4.2.1/hashcat64.bin -O -m 15100 -a 1 assignment/1_level/hashes/sha1.hashes assignment/1_level/the4letter.txt assignment/1_level/the4letter.txt -w 4
+
+
