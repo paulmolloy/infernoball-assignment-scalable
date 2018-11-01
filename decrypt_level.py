@@ -113,6 +113,16 @@ def pwds_to_shares(pwds,k,numbytes):
     diffs=[] # diff the passwords and shares
     for i in range(0,n):
         diffs.append(pxor(pwds[i],shares[i]))
+        print(pwds[i])
+        print(shares[i])
+        print(pxor(pwds[i],shares[i]))
+    return diffs
+
+def de_pwds_to_shares(pwds, shares):
+    diffs = []
+    for i in range(0, len(pwds)): 
+        diffs.append(pxor(pwds[i],shares[i]))
+        print(diffs[i])
     return diffs
 
 def pwds_shares_to_secret(kpwds,kinds,diffs):
@@ -150,6 +160,16 @@ def encrypt(raw, key):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return base64.b64encode(iv + cipher.encrypt(raw))
 
+
+def decrypt(enc, key):
+    enc = base64.b64decode(enc)
+    iv = enc[:16]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    return unpad(cipher.decrypt(enc[16:]))
+
+
+unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+
 # main code...
 
 # magic JSON incantation (I forget why, might not even be needed here:-)
@@ -165,13 +185,9 @@ skips=0 # how many passwords from file to skip
 # usage
 def usage():
     print >>sys.stderr, "Usage: " + sys.argv[0] + " -u <username> -p <pwdfile> [-D <destdir>] [-s <skips>] [-m min] [-M max] [-l levels]" 
-    sys.exit(1)
+    sys.exit(1) # getopt handling argparser=argparse.ArgumentParser(description='Make as5 files for one studenrt') argparser.add_argument('-u','--user',     dest='username',
 
-# getopt handling
 argparser=argparse.ArgumentParser(description='Make as5 files for one studenrt')
-argparser.add_argument('-u','--user',     
-                    dest='username',
-                    help='submitty username for student')
 argparser.add_argument('-p','--passwords',     
                     dest='pwdfile',
                     help='file containing passwords, one per line')
@@ -192,9 +208,6 @@ argparser.add_argument('-l','--levels',
                     help='levels to generate')
 args=argparser.parse_args()
 
-# post opt checks
-if args.username is None:
-    usage()
 
 if args.skips is not None:
     skips=int(args.skips)
@@ -215,6 +228,7 @@ if minppl > maxppl:
 # derived parameters - mix/max passwords per level needed
 mintpl=(minppl/10) # tpl = threshold per level - we'll randomly select in this range
 if mintpl < 2: # can't have <2 shares:-)
+    print("mintpl == 2")
     mintpl=2
 maxtpl=(maxppl/2)
 
@@ -237,25 +251,6 @@ with open(args.pwdfile,"r") as pwdf:
         lno += 1
 npasswords=len(passwords)
 
-destdir="."
-if args.destdir is not None:
-    destdir=args.destdir
-
-if not os.access(destdir,os.W_OK):
-    # not checking we can write to destdir but feck it, good enough:-)
-    print "Can't read " + destdir + " - exiting"
-    sys.exit(3)
-
-# create a tmpdir and go there
-tmpdir=tempfile.mkdtemp()
-
-# Ensure the file is read/write by the creator only
-saved_umask = os.umask(0077)
-
-# next password to start from is at this index
-bottom=0
-
-
 """
 TODO READ Potfile
 Get ones that are cracked and their shares
@@ -266,65 +261,51 @@ go to next level repeat.
 
 
 """
-try:
-    # make layers 'till done
-    centrelayercontent="Here be dragons!"
-    prevlayercontent=centrelayercontent
-    secrets=[]
-    for level in range(0,depth):
-        # select N passwords for this level
-        npwds=randrange(minppl,maxppl) # number we'll use
-        print "Doing level " + str(level) + " with " + str(npwds) + " passwords"
-        lpwds=passwords[bottom:bottom+npwds]
-        bottom+=npwds
-        if bottom >= npasswords:
-            print >>sys.stderr, "Bummer we're out of passwords (used " + str(npasswords) + ")"
-            sys.exit(4)
-        # pick threshold for this layer
-        lthresh=randrange(mintpl,maxtpl)
-        # generate shares/secret for those pwds
-        shares=pwds_to_shares(lpwds,lthresh,BLOCK_SIZE)
-        kinds = [i for i in xrange(lthresh)]
-        levelsecret=pwds_shares_to_secret(lpwds[0:lthresh],kinds,shares)
-        secrets.append(levelsecret)
-        # hash the passwords
-        hashes=[]
-        for p in lpwds:
-            # note newhash could throw exception for weird values of p
-            # that's ok though, if it happens just try again from command line
-            # with different passwords
-            hashes.append(newhash(p)) 
-        # encrypt prev layer 
-        ciphertext=encrypt(jsonpickle.encode(prevlayercontent),levelsecret.zfill(32).decode('hex'))
-        # make up this layer
-        layercontent={}
-        layercontent['hashes']=hashes
-        layercontent['shares']=shares
-        layercontent['ciphertext']=ciphertext
-        # nesty nesting
-        prevlayercontent=layercontent
-    # write files
-    cfname=args.username+".as5"
-    path=os.path.join(tmpdir,cfname)
-    with open(path,"w") as tmpf:
-        tmpf.write(jsonpickle.encode(prevlayercontent))
-    tmpf.close()
-    shutil.move(path,destdir+"/"+cfname)
-    csname=args.username+".secrets"
-    path=os.path.join(tmpdir,csname)
-    with open(path,"w") as tmpf:
-        for sec in secrets:
-            tmpf.write(sec+"\n")
-    tmpf.close()
-    shutil.move(path,destdir+"/"+csname)
-except Exception as e:
-    print >>sys.stderr, "Exception doing: " + args.username + " " + str(e)
-    sys.exit(5)
-finally:
-    # clean up
-    os.umask(saved_umask)
-    shutil.rmtree(tmpdir,ignore_errors=True)
+bottom = 0
+# make layers 'till done
+centrelayercontent="Here be dragons!"
+prevlayercontent=centrelayercontent
+secrets=[]
+for level in range(0,depth):
+    # select N passwords for this level
+    npwds=randrange(minppl,maxppl) # number we'll use
+    print "Doing level " + str(level) + " with " + str(npwds) + " passwords"
+    lpwds=passwords[bottom:bottom+npwds]
+    bottom+=npwds 
+    if bottom >= npasswords:
+        print >>sys.stderr, "Bummer we're out of passwords (used " + str(npasswords) + ")"
+        sys.exit(4)
+    # pick threshold for this layer
+    lthresh=randrange(mintpl,maxtpl)
+    print("lthresh:")
+    print(lthresh)
+    # generate shares/secret for those pwds
+    # have passwords
+    shares= pwds_to_shares(lpwds,lthresh,BLOCK_SIZE)
+    de_pwds_to_shares(lpwds, shares)
+    print("shares:")
+    print(shares)
+    print(type(shares))
+    kinds = [i for i in xrange(lthresh)]
+    print("kinds:")
+    print(kinds)
+    levelsecret=pwds_shares_to_secret(lpwds[0:lthresh],kinds,shares)
+    print("level secret:")
+    print(levelsecret)
+    secrets.append(levelsecret)
+    # hash the passwords
+    hashes=[]
+    for p in lpwds:
+        # note newhash could throw exception for weird values of p
+        # that's ok though, if it happens just try again from command line
+        # with different passwords
+        hashes.append(newhash(p)) 
+    # encrypt prev layer 
+    ciphertext=encrypt(jsonpickle.encode(prevlayercontent),levelsecret.zfill(32).decode('hex'))
+    print("decrypted:::")
+    print(decrypt(ciphertext, levelsecret.zfill(32).decode('hex')))
+    print("after decrypted")
 
 # success return, we're all done!
-sys.exit(0)
+#sys.exit(0)
 

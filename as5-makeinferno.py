@@ -307,7 +307,7 @@ try:
     tmpf.close()
     shutil.move(path,destdir+"/"+csname)
 except Exception as e:
-    print >>sys.stderr, "Exception doing: " + args.username + " " + str(e)
+    print >>sys.stderr, "Exception doing: " +  " " + str(e)
     sys.exit(5)
 finally:
     # clean up
