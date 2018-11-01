@@ -19,3 +19,7 @@ sudo pip install argon2_cffi#
 Decrypt a level with:
 python decrypt.py -i molloyp1.as5 -p ../JohnTheRipper/run/john.pot
 
+Decrypt and save 2_level.as5 and 2_level.secrets with:
+python decrypt.py -i molloyp1.as5 -p ../JohnTheRipper/run/john.pot -n 2
+
+where n is the next level number

@@ -8,7 +8,7 @@ import secretsharing as sss
 import jsonpickle 
 # usage
 def usage():
-    print>>sys.stderr, "Usage: " + sys.argv[0] + "-i <infernoball_path> -p <potfile_path> "
+    print>>sys.stderr, "Usage: " + sys.argv[0] + "-i <infernoball_path> -p <potfile_path>  [-n <next_infernoball_path]"
     sys.exit(1)
 
 def pxor(pwd,share):
@@ -74,13 +74,29 @@ def main(argv):
     argparser.add_argument('-i','--infernoball_path',     
                     dest='infernoball_path',
                     help='Path to the infernoball file.')
-    
+    argparser.add_argument('-n','--next_level_number',     
+                    dest='next_level_number',
+                    help='For the next infernoball file.')
+
     args=argparser.parse_args()
 
     if args.infernoball_path is None:
         usage()
     if args.potfile_path is None:
         usage()
+    destdir="."
+
+    if not os.access(destdir,os.W_OK):
+        # not checking we can write to destdir but feck it, good enough:-)
+        print "Can't read " + destdir + " - exiting"
+        sys.exit(3)
+
+# create a tmpdir and go there
+    tmpdir=tempfile.mkdtemp()
+
+# Ensure the file is read/write by the creator only
+    saved_umask = os.umask(0077)
+
 
  
      # read  potfile
@@ -114,11 +130,32 @@ def main(argv):
     # print('Passwords: ', passwords)
     # print('Shares: ', shares)
     kinds = [i for i in xrange(len(passwords))]
-    levelsecret=pwds_shares_to_secret(passwords,kinds,shares)   
-    print("Got level secret:" +  levelsecret)
+    level_secret=pwds_shares_to_secret(passwords,kinds,shares)   
+    print("Got level secret:" +  level_secret)
     print("Decrypted next level:")
     try:
-        print(decrypt(level['ciphertext'], levelsecret.zfill(32).decode('hex')))
+        next_level = decrypt(level['ciphertext'], level_secret.zfill(32).decode('hex'))
+        if args.next_level_number is not None:
+            # write files
+            cfname=args.next_level_number + "_level.as5"
+            path=os.path.join(tmpdir,cfname)
+            with open(path,"w") as tmpf:
+                tmpf.write(next_level)
+            tmpf.close()
+            full_dst = destdir+"/"+cfname
+            shutil.move(path, full_dst)
+            print('Saved level {} infernoball to {}').format(args.next_level_number, full_dst)
+            csname= args.next_level_number + "_level.secrets"
+            path=os.path.join(tmpdir,csname)
+            with open(path,"w") as tmpf:
+                    tmpf.write(level_secret+"\n")
+            tmpf.close()
+            full_dst = destdir+"/"+csname
+            shutil.move(path, full_dst)
+            print('Saved level {} secret to {}').format(args.next_level_number, full_dst)
+
+        else:
+            print(next_level)
     except Exception as e:
         print >>sys.stderr, 'Exception decrypting level: The secret is probably wrong because you need to crack more hashes. ' + str(e)
         sys.exit(5)
