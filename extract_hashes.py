@@ -5,7 +5,7 @@ import os,sys,argparse,tempfile,shutil
 import jsonpickle 
 # usage
 def usage():
-    print( "Usage: " + sys.argv[0] + "-i <infernoball_path> [-D <destdir>]  [-h <hashesfileName>] ",  file=sys.stderr)
+    print>>sys.stderr, "Usage: " + sys.argv[0] + "-i <infernoball_path> [-D <destdir>]  [-h <hashesfileName>] "
     sys.exit(1)
 
 

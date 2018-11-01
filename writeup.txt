@@ -23,3 +23,11 @@ Decrypt and save 2_level.as5 and 2_level.secrets with:
 python decrypt.py -i molloyp1.as5 -p ../JohnTheRipper/run/john.pot -n 2
 
 where n is the next level number
+
+python decrypt.py -i testing/1_level/inferno_ball.as5 -p ../JohnTheRipper/run/john.pot -n 2 -D testing/2_level
+
+
+
+Just run next level to decrypt and split out the hashes for the next level.
+./next_level.sh next_level_num inferno_ball potfile_path 
+./next_level.sh 2 testing/1_level/inferno_ball.as5 ../JohnTheRipper/run/john.pot 

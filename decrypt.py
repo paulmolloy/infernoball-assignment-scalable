@@ -8,7 +8,7 @@ import secretsharing as sss
 import jsonpickle 
 # usage
 def usage():
-    print>>sys.stderr, "Usage: " + sys.argv[0] + "-i <infernoball_path> -p <potfile_path>  [-n <next_infernoball_path]"
+    print>>sys.stderr, "Usage: " + sys.argv[0] + "-i <infernoball_path> -p <potfile_path>  [-n <next_level_number -D <dir_for_next_infernoball]"
     sys.exit(1)
 
 def pxor(pwd,share):
@@ -77,6 +77,10 @@ def main(argv):
     argparser.add_argument('-n','--next_level_number',     
                     dest='next_level_number',
                     help='For the next infernoball file.')
+    argparser.add_argument('-D','--destdir',     
+                    dest='destdir',
+                    help='directory for output file')
+
 
     args=argparser.parse_args()
 
@@ -85,6 +89,9 @@ def main(argv):
     if args.potfile_path is None:
         usage()
     destdir="."
+    if args.destdir is not None:
+        destdir=args.destdir
+
 
     if not os.access(destdir,os.W_OK):
         # not checking we can write to destdir but feck it, good enough:-)
