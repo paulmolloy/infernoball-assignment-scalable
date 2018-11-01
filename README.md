@@ -13,3 +13,6 @@ The original hashes and infernoball for the level are copied into the new level 
 
 
 extract_hashes is used to read an infernoball and save the hashes to a file.
+
+To decrypt a level with a potfile use:
+python decrypt.py -i molloyp1.as5 -p ../JohnTheRipper/run/john.pot

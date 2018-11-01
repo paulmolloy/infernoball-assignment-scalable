@@ -11,7 +11,6 @@ def usage():
     print>>sys.stderr, "Usage: " + sys.argv[0] + "-i <infernoball_path> -p <potfile_path> "
     sys.exit(1)
 
-
 def pxor(pwd,share):
     '''
       XOR a hashed password into a Shamir-share
@@ -55,8 +54,7 @@ def pwds_shares_to_secret(kpwds,kinds,diffs):
     secret=sss.SecretSharer.recover_secret(shares)
     return secret
 
-# password hashing primitives
-
+# decrypt the cipher text given the key.
 def decrypt(enc, key):
     enc = base64.b64decode(enc)
     iv = enc[:16]
@@ -91,9 +89,10 @@ def main(argv):
         content = pot_file.read();
         for l in content.splitlines(True):
             arr = l.strip().split(':')
+            if len(arr) != 2:
+                print('Invalid potfile: Should have single \':\' separating the hash and password on each line.')
+                return 0
             d[arr[0]] = arr[1]
-    print(d)
-    print("infernoball hashes below:")
    
     # read inferno ball file
     shares = []
@@ -103,27 +102,28 @@ def main(argv):
         level = jsonpickle.decode(content)
         for i in range(len(level['hashes'])):
             h =  level['hashes'][i]
-            #print(h)
             if  h in d:
-                print(d[h])
-                print(level['shares'][i])
                 shares.append(level['shares'][i].encode('ascii','ignore'))
-                print(shares[i])
                 passwords.append(d[h].encode('ascii','ignore'))
             else:
-                print(h, ' not in d')
-
-    print('Passwords: ', passwords)
-    print('Shares: ', shares)
-    print(shares)
-    print(type(shares))
-    print(shares[2])
+                print(h + ' not in d')
+    print('Got {} shares.').format(len(shares)) 
+    if len(shares) == 0:
+        print('Got no shares, maybe check formatting. Quiting.')
+        return 0
+    # print('Passwords: ', passwords)
+    # print('Shares: ', shares)
     kinds = [i for i in xrange(len(passwords))]
     levelsecret=pwds_shares_to_secret(passwords,kinds,shares)   
-    print("Got level secret:",  levelsecret)
-    print("decrypted:::")
-    print(decrypt(level['ciphertext'], levelsecret.zfill(32).decode('hex')))
-    print("after decrypted")
+    print("Got level secret:" +  levelsecret)
+    print("Decrypted next level:")
+    try:
+        print(decrypt(level['ciphertext'], levelsecret.zfill(32).decode('hex')))
+    except Exception as e:
+        print >>sys.stderr, 'Exception decrypting level: The secret is probably wrong because you need to crack more hashes. ' + str(e)
+        sys.exit(5)
+
+
 
 
 if __name__ == "__main__":
