@@ -112,10 +112,11 @@ def main(argv):
         content = pot_file.read();
         for l in content.splitlines(True):
             arr = l.strip().split(':')
-            if len(arr) != 2:
-                print('Invalid potfile: Should have single \':\' separating the hash and password on each line.')
-                return 0
-            d[arr[0]] = arr[1]
+
+           # if len(arr) != 2:
+           #     print('Invalid potfile: Should have single \':\' separating the hash and password on each line.')
+           #     return 0
+            d["".join(arr[0:-1])] = arr[-1]
    
     # read inferno ball file
     shares = []
@@ -128,9 +129,9 @@ def main(argv):
             if  h in d:
                 shares.append(level['shares'][i].encode('ascii','ignore'))
                 passwords.append(d[h].encode('ascii','ignore'))
-            else:
-                print(h + ' not in d')
-    print('Got {} shares.').format(len(shares)) 
+            #else:
+            #    print(h + ' not in d')
+    print('Got {} shares out of {}.').format(len(shares), len(level['shares'])) 
     if len(shares) == 0:
         print('Got no shares, maybe check formatting. Quiting.')
         return 0
