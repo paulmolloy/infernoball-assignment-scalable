@@ -31,3 +31,7 @@ python decrypt.py -i testing/1_level/inferno_ball.as5 -p ../JohnTheRipper/run/jo
 Just run next level to decrypt and split out the hashes for the next level.
 ./next_level.sh next_level_num inferno_ball potfile_path 
 ./next_level.sh 2 testing/1_level/inferno_ball.as5 ../JohnTheRipper/run/john.pot 
+
+
+python decrypt.py -i assignment/1_level/inferno_ball.as5 -p nov3potfile.pot | less
+python decrypt.py -i testing/1_level/inferno_ball.as5 -p testing1pot.potfile | less
