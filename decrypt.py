@@ -95,7 +95,7 @@ def main(argv):
 
     if not os.access(destdir,os.W_OK):
         # not checking we can write to destdir but feck it, good enough:-)
-        print "Can't read " + destdir + " - exiting"
+        print( "Can't read " + destdir + " - exiting")
         sys.exit(3)
 
 # create a tmpdir and go there
