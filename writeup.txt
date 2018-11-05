@@ -35,3 +35,6 @@ Just run next level to decrypt and split out the hashes for the next level.
 
 python decrypt.py -i assignment/1_level/inferno_ball.as5 -p nov3potfile.pot | less
 python decrypt.py -i testing/1_level/inferno_ball.as5 -p testing1pot.potfile | less
+
+screen -S pbk ./JohnTheRipper/run/john infernoball-assignment-scalable/assignment/6_level/hash
+es/pbkdf2-sha256.hashes  --wordlist=rockyou.txt --format=PBKDF2-HMAC-SHA256-opencl -fork=4 -dev=0,1,2,3
