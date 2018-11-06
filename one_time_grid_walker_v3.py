@@ -10,13 +10,13 @@ if sys.version_info[0] < 3:
 
 
 # The length of the one time grid
-GRID_LEN = 7
+GRID_LEN = 4
 
 # Max lengt of a run
-MAX_RUN_LEN = 14
+MAX_RUN_LEN = 8
 
 # Minimum length of a run
-MIN_RUN_LEN = 1
+MIN_RUN_LEN = 8
         
 ## Sets up the grid to generate walks from        
 def setup_grid():
@@ -27,21 +27,15 @@ def setup_grid():
     # the plaintext values to add in the grid
     #
     # yes, I know I could make this more general, but *shrug*
-    row1="IA9GVwc"
-    row2="8oyIL$L"
-    row3=")M.!q03"
-    row4="WKHG8o+"
-    row5="e+p+P?*"
-    row6="+p{.$Tx"
-    row7="Jz3hb.u"
+    row1="1234567890-="
+    row2="qwertyuiop[]"
+    row3="asdfghjkl;'#"
+    row4="\zxcvbnm,./"
     
     one_time_grid.append(list(row1))
     one_time_grid.append(list(row2))
     one_time_grid.append(list(row3))
     one_time_grid.append(list(row4))
-    one_time_grid.append(list(row5))
-    one_time_grid.append(list(row6))
-    one_time_grid.append(list(row7))
     
     return one_time_grid
  
