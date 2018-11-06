@@ -38,3 +38,4 @@ python decrypt.py -i testing/1_level/inferno_ball.as5 -p testing1pot.potfile | l
 
 screen -S pbk ./JohnTheRipper/run/john infernoball-assignment-scalable/assignment/6_level/hash
 es/pbkdf2-sha256.hashes  --wordlist=rockyou.txt --format=PBKDF2-HMAC-SHA256-opencl -fork=4 -dev=0,1,2,3
+./JohnTheRipper/run/john infernoball-assignment-scalable/assignment/7_level/hashes/pbkdf2-sha256.hashes  --wordlist=keyboard4kwp10.txt --format=PBKDF2-HMAC-SHA256-opencl
